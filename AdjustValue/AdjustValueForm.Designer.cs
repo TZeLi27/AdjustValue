@@ -174,6 +174,7 @@
             this.MinimizeBox = false;
             this.Name = "AdjustValueForm";
             this.Text = "水准网间接平差";
+            this.Load += new System.EventHandler(this.AdjustValueForm_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVAdjust)).EndInit();

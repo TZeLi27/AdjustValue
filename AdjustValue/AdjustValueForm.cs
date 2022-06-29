@@ -20,6 +20,11 @@ namespace AdjustValue
         private void TlsInputdata_Click(object sender, EventArgs e)
         {
             ParamFour.InputAdjustData(DGVAdjust);
+            if(DGVAdjust.ColumnCount < 6 )
+            {
+                MessageBox.Show("数据格式错误，请检查数据！");
+                return;
+            }
             TlsCalAdjust.Enabled = true;
         }
 
@@ -81,6 +86,11 @@ namespace AdjustValue
             RTxtKnow.Text = "";
             RTxtModel.Text = "";
             RTxtOut.Text = "";
+        }
+
+        private void AdjustValueForm_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
