@@ -119,11 +119,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(762, 468);
             this.Controls.Add(this.DGVcoord);
             this.Controls.Add(this.RTxtOutpara);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "FourParaForm";
             this.Text = "四参数转换";
             this.Load += new System.EventHandler(this.FourPara_Load);

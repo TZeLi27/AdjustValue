@@ -32,6 +32,7 @@
             this.TlsInputdata = new System.Windows.Forms.ToolStripMenuItem();
             this.TlsCalAdjust = new System.Windows.Forms.ToolStripMenuItem();
             this.TlsOutData = new System.Windows.Forms.ToolStripMenuItem();
+            this.TlsClearData = new System.Windows.Forms.ToolStripMenuItem();
             this.DGVAdjust = new System.Windows.Forms.DataGridView();
             this.RTxtKnow = new System.Windows.Forms.RichTextBox();
             this.RTxtModel = new System.Windows.Forms.RichTextBox();
@@ -39,7 +40,6 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.TlsClearData = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVAdjust)).BeginInit();
             this.SuspendLayout();
@@ -67,19 +67,26 @@
             // 
             // TlsCalAdjust
             // 
+            this.TlsCalAdjust.Enabled = false;
             this.TlsCalAdjust.Name = "TlsCalAdjust";
             this.TlsCalAdjust.Size = new System.Drawing.Size(83, 24);
             this.TlsCalAdjust.Text = "平差计算";
-            this.TlsCalAdjust.Enabled = false;
             this.TlsCalAdjust.Click += new System.EventHandler(this.TlsCalAdjust_Click);
             // 
             // TlsOutData
             // 
+            this.TlsOutData.Enabled = false;
             this.TlsOutData.Name = "TlsOutData";
             this.TlsOutData.Size = new System.Drawing.Size(83, 24);
             this.TlsOutData.Text = "导出结果";
-            this.TlsOutData.Enabled = false;
             this.TlsOutData.Click += new System.EventHandler(this.TlsOutData_Click);
+            // 
+            // TlsClearData
+            // 
+            this.TlsClearData.Name = "TlsClearData";
+            this.TlsClearData.Size = new System.Drawing.Size(83, 24);
+            this.TlsClearData.Text = "清除数据";
+            this.TlsClearData.Click += new System.EventHandler(this.TlsClearData_Click);
             // 
             // DGVAdjust
             // 
@@ -148,17 +155,11 @@
             this.label3.TabIndex = 7;
             this.label3.Text = "结果输出：";
             // 
-            // TlsClearData
-            // 
-            this.TlsClearData.Name = "TlsClearData";
-            this.TlsClearData.Size = new System.Drawing.Size(83, 24);
-            this.TlsClearData.Text = "清除数据";
-            this.TlsClearData.Click += new System.EventHandler(this.TlsClearData_Click);
-            // 
             // AdjustValueForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(1196, 662);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -169,6 +170,8 @@
             this.Controls.Add(this.DGVAdjust);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "AdjustValueForm";
             this.Text = "水准网间接平差";
             this.menuStrip1.ResumeLayout(false);

@@ -76,11 +76,15 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(314, 166);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnAdjustValue);
             this.Controls.Add(this.btnFourPara);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "实用数据测量";
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.ResumeLayout(false);
