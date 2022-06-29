@@ -9,6 +9,13 @@ namespace AdjustValue
 {
     internal class AdjustValue
     {
+        /// <summary>
+        /// 平差计算函数
+        /// </summary>
+        /// <param name="myDGV 存放数据的表格"></param>
+        /// <param name="known 存放已知信息的文本框"></param>
+        /// <param name="model 存放模型参数的文本框"></param>
+        /// <param name="outdata 存放平差结果的文本框"></param>
         public static void CalAdjustValue(DataGridView myDGV,RichTextBox known, RichTextBox model, RichTextBox outdata)
         {
             int rowsNum=myDGV.Rows.Count-1;                         // 观测值数量
@@ -18,7 +25,7 @@ namespace AdjustValue
             double[,] d = new double[rowsNum,1];                      // 误差方程常数
             double[,] V = new double[rowsNum, 1];                     // 改正数矩阵
             double[,] P = new double[rowsNum, rowsNum];         // 权值矩阵
-
+            // 初始化P矩阵
             for (int i = 0; i < rowsNum; i++)
             {
                 for (int j = 0; j < rowsNum; j++)
@@ -27,7 +34,7 @@ namespace AdjustValue
                 }
             }
 
-            // 定义已知点信息
+            // 定义已知点信息矩阵
             string[] TurePoint = new string[rowsNum];                  // 已知点点号
             string[] TempPoint = new string[rowsNum];                // 临时文件
             double[] TureValue = new double[rowsNum];              // 已知点高程
@@ -54,17 +61,17 @@ namespace AdjustValue
             }
 
             // 获取线路上所有点号
-            string[] AllPoints=StartEndPoint.Distinct().ToArray();
-            int AllPointsNum = AllPoints.Length;
-            int t = AllPointsNum - TureNum;                         // 必要观测数t
+            string[] AllPoints=StartEndPoint.Distinct().ToArray(); // 获取所有点（从起止点中剔除重复点）
+            int AllPointsNum = AllPoints.Length;                          // 所有点数量
+            int t = AllPointsNum - TureNum;                                 // 必要观测数t
 
-            // 定义参数近似值矩阵
-            double[,] X = new double[t, 1];
-            string[] XPoint = new string[t];
-            double[,] XValue = new double[t, 1];                          // 法方程解
-            int XNum = 0;
+            double[,] X = new double[t, 1];                                  // 未知数近似值
+            string[] XPoint = new string[t];                                   // 未知点点号
+            double[,] XValue = new double[t, 1];                          // 法方程解矩阵
+            int XNum = 0;                                                              // 未知点数量
+            // 初始化未知点
             for (int i = 0; i < AllPoints.Length; i++)
-            {
+            { // 将所有点中不在已知点矩阵中的放入未知点矩阵
                 if (!TurePoint.Contains(AllPoints[i]))
                 {
                     XPoint[XNum] = AllPoints[i];
@@ -142,6 +149,7 @@ namespace AdjustValue
             B0.MatrixMultiply(BTP, B, ref Nbb);
             double[,] invNbb = new double[t, t];                 // N_-1
             invNbb = B0.MatrixOpp(Nbb);
+
             // 计算常数项l矩阵 l=L-B*X-d
             double[,] BX0 = new double[rowsNum, 1];
             B0.MatrixMultiply(B, X, ref BX0);
@@ -171,25 +179,49 @@ namespace AdjustValue
             double[,] L_adjust = new double[rowsNum, 1];                          // 法方程解
             B0.MatrixAdd(V, L, ref L_adjust);
 
+            // 输出结果
             printKnow(known, TempPoint, TureValue, X, XPoint, rowsNum, t,TureNum);
             printModel(model, B, P, l, rowsNum, t);
             printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma);
         }
 
+        /// <summary>
+        /// 输出已知信息
+        /// </summary>
+        /// <param name="known 输出结果的文本框"></param>
+        /// <param name="TempPoint 已知点点号"></param>
+        /// <param name="TureValue 已知点高程"></param>
+        /// <param name="X 未知点近似值"></param>
+        /// <param name="XPoint 未知点点号"></param>
+        /// <param name="n 观测值数量"></param>
+        /// <param name="t 必要观测数"></param>
+        /// <param name="TureNum 已知点数量"></param>
         public static void printKnow(RichTextBox known, string[] TempPoint, double[] TureValue, double[,] X, string[] XPoint,int n,int t,int TureNum)
         {
             known.Text = "";
             known.Text = "观测值数量="+n.ToString()+"\n";
             known.Text += "必要观测数=" + t.ToString() + "\n";
             known.Text += "\n";
+
             known.Text += "已知点数量=" + TureNum.ToString() + "\n"+ "已知点高程值(m)：\n";
             for(int i = 0; i < TureNum; i++)
                 known.Text += TempPoint[i]+ ":" + TureValue[i].ToString() + "\n";
             known.Text += "\n";
+
             known.Text += "未知点数量=" + XPoint.Length.ToString() + "\n" + "未知点近似值(m)：\n";
             for (int i = 0; i < XPoint.Length; i++) 
                 known.Text += XPoint[i] + ":" + X[i,0].ToString() + "\n";
         }
+
+        /// <summary>
+        /// 输出模型参数
+        /// </summary>
+        /// <param name="model 存放输出的文本框"></param>
+        /// <param name="B B矩阵"></param>
+        /// <param name="P P矩阵"></param>
+        /// <param name="l l矩阵 l=L-B*X-d"></param>
+        /// <param name="n 观测值数量"></param>
+        /// <param name="t 必要观测数"></param>
         public static void printModel(RichTextBox model, double[,] B, double[,] P, double[,] l,int n,int t)
         {
             model.Text = "";
@@ -202,6 +234,7 @@ namespace AdjustValue
                 }
                 model.Text += "\n";
             }
+
             model.Text += "\nP矩阵：\n";
             for (int i = 0; i < n; i++)
             {
@@ -211,10 +244,23 @@ namespace AdjustValue
                 }
                 model.Text += "\n";
             }
+
             model.Text += "\nl矩阵：\n";
             for (int i = 0; i < n; i++)
                     model.Text += l[i, 0].ToString() + "\n";
         }
+
+        /// <summary>
+        /// 输出平差结果
+        /// </summary>
+        /// <param name="outData 存放输出的文本框"></param>
+        /// <param name="XValue 法方程解"></param>
+        /// <param name="V 观测值改正数"></param>
+        /// <param name="X_adjust 参数平差值"></param>
+        /// <param name="L_adjust 观测值平差值"></param>
+        /// <param name="n 观测值数量"></param>
+        /// <param name="t 必要观测数"></param>
+        /// <param name="sigma 单位权中误差"></param>
         public static void printOut(RichTextBox outData, double[,] XValue, double[,] V, 
             double[,] X_adjust, double[,] L_adjust, int n, int t,double sigma)
         {
