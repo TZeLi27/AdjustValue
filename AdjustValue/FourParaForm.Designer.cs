@@ -96,9 +96,9 @@
             // 
             this.RTxtOutpara.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.RTxtOutpara.Location = new System.Drawing.Point(0, 435);
+            this.RTxtOutpara.Location = new System.Drawing.Point(0, 405);
             this.RTxtOutpara.Name = "RTxtOutpara";
-            this.RTxtOutpara.Size = new System.Drawing.Size(762, 34);
+            this.RTxtOutpara.Size = new System.Drawing.Size(762, 61);
             this.RTxtOutpara.TabIndex = 1;
             this.RTxtOutpara.Text = "";
             // 
@@ -112,7 +112,7 @@
             this.DGVcoord.Name = "DGVcoord";
             this.DGVcoord.RowHeadersWidth = 51;
             this.DGVcoord.RowTemplate.Height = 29;
-            this.DGVcoord.Size = new System.Drawing.Size(762, 408);
+            this.DGVcoord.Size = new System.Drawing.Size(762, 368);
             this.DGVcoord.TabIndex = 2;
             // 
             // FourParaForm

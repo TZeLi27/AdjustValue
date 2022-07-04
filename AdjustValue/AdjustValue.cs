@@ -170,7 +170,8 @@ namespace AdjustValue
                 V[i, 0] = Bx[i, 0] - l[i, 0];
                 sigma = sigma + V[i, 0] * P[i, i] * V[i, 0];
             }
-            sigma = sigma / (rowsNum - t);          // ！！！！！单位权中误差有问题可能
+            sigma = sigma / (rowsNum - t);          
+            sigma = Math.Round(Math.Sqrt(sigma),6);
 
             // 解参数平差值
             double[,] X_adjust = new double[t, 1];                          // 法方程解
@@ -205,12 +206,12 @@ namespace AdjustValue
 
             known.Text += "已知点数量=" + TureNum.ToString() + "\n"+ "已知点高程值(m)：\n";
             for(int i = 0; i < TureNum; i++)
-                known.Text += TempPoint[i]+ ":" + TureValue[i].ToString() + "\n";
+                known.Text += TempPoint[i]+ ":" + Math.Round(TureValue[i],6).ToString() + "\n";
             known.Text += "\n";
 
             known.Text += "未知点数量=" + XPoint.Length.ToString() + "\n" + "未知点近似值(m)：\n";
             for (int i = 0; i < XPoint.Length; i++) 
-                known.Text += XPoint[i] + ":" + X[i,0].ToString() + "\n";
+                known.Text += XPoint[i] + ":" + Math.Round(X[i,0], 6).ToString() + "\n";
         }
 
         /// <summary>
@@ -230,7 +231,7 @@ namespace AdjustValue
             {
                 for(int j=0; j<t; j++)
                 {
-                    model.Text += Math.Round(B[i,j],2).ToString() + " ";
+                    model.Text += Math.Round(B[i,j],6).ToString() + " ";
                 }
                 model.Text += "\n";
             }
@@ -240,14 +241,14 @@ namespace AdjustValue
             {
                 for (int j = 0; j < n; j++)
                 {
-                    model.Text += Math.Round(P[i, j],2).ToString() + " ";
+                    model.Text += Math.Round(P[i, j],6).ToString() + " ";
                 }
                 model.Text += "\n";
             }
 
             model.Text += "\nl矩阵：\n";
             for (int i = 0; i < n; i++)
-                    model.Text += l[i, 0].ToString() + "\n";
+                    model.Text += Math.Round(l[i, 0],6).ToString() + "\n";
         }
 
         /// <summary>
@@ -267,17 +268,17 @@ namespace AdjustValue
             outData.Text = "";
             outData.Text = "法方程解(mm)：\n";
             for( int i = 0; i < t; i++)
-                outData.Text += (XValue[i, 0]*1000).ToString() + "\n";
+                outData.Text += Math.Round((XValue[i, 0]*1000),6).ToString() + "\n";
             outData.Text += "\n改正数(mm)：\n";
             for(int i = 0; i < n; i++)
-                outData.Text += (V[i, 0] * 1000).ToString() + "\n";
+                outData.Text += Math.Round((V[i, 0] * 1000),6).ToString() + "\n";
             outData.Text += "\n参数平差值(m)：\n";
             for(int j = 0; j < t; j++)
-                outData.Text +=X_adjust[j, 0].ToString() + "\n";
+                outData.Text += Math.Round(X_adjust[j, 0],6).ToString() + "\n";
             outData.Text += "\n观测值平差值(m)：\n";
             for (int j = 0; j < n; j++)
-                outData.Text += L_adjust[j, 0] .ToString() + "\n";
-            outData.Text += "\n单位权中误差(mm)=" + (sigma*1000).ToString()+ "\n（单位权中误差有问题可能）";
+                outData.Text += Math.Round(L_adjust[j, 0],6) .ToString() + "\n";
+            outData.Text += "\n单位权中误差(mm)=" + Math.Round((sigma*1000),6).ToString()+ "\n";
         }
     }
 }

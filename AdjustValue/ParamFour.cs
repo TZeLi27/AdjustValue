@@ -24,7 +24,7 @@ namespace AdjustValue
         /// <param name="dx x的平移量"></param>
         /// <param name="dy y的平移量"></param>
         public static void Param4(Point2D[] OldPoints, Point2D[] Newpoints,int n,
-            ref double rota, ref double scale, ref double dx, ref double dy)
+            ref double rota, ref double scale, ref double dx, ref double dy, ref double p)
         {
             int pointCount = n;
 
@@ -71,14 +71,50 @@ namespace AdjustValue
             u = u + param[2, 0];         // param[3,0] = scale * cos(rote) -1
             v = v + param[3, 0];         // param[4,0] = scale * sin(rote)
 
-            // 整理四参数，最多保留六位小数
+            // 整理四参数，保留六位小数
             rota = Math.Atan(v / u);
             scale = u / Math.Cos(rota);
             dx = Math.Round(dx, 6);
             dy = Math.Round(dy, 6);
             rota = Math.Round(rota / Math.PI * 180, 6);
             scale = Math.Round(scale, 6);
+
+            calAcc(OldPoints, Newpoints, n, param, ref p);
         }
+        /// <summary>
+        /// 平面点位中误差计算
+        /// </summary>
+        /// <param name="OldPoints 旧坐标"></param>
+        /// <param name="Newpoints 新坐标"></param>
+        /// <param name="n 计算点的数量"></param>
+        /// <param name="param 计算参数"></param>
+        /// <param name="p 平面点位中误差"></param>
+        public static void calAcc(Point2D[] OldPoints, Point2D[] Newpoints, int n, double[,] param,ref double p)
+        {
+            int pointCount = n;
+
+            // 定义矩阵运算变量
+            Matrix B;                                                                    // 矩阵运算
+            double u = 1.0, v = 0,dx,dy;
+            dx = param[0, 0];
+            dy = param[1, 0];
+            u = u + param[2, 0];         // param[3,0] = scale * cos(rote) -1
+            v = v + param[3, 0];         // param[4,0] = scale * sin(rote)
+
+            double tempx, tempy;
+            
+            p=0;
+            for(int i = 0; i < pointCount; i++)
+            {// 残差计算
+                tempx = Newpoints[i].X-(OldPoints[i].X * u - v * OldPoints[i].Y+dx);
+                tempy = Newpoints[i].Y-(OldPoints[i].X * v + u * OldPoints[i].Y + dy);
+                p+=tempx*tempx + tempy*tempy;
+            }
+            // 平面点位中误差
+            p =Math.Sqrt (p / (n - 1))*1000;
+            p = Math.Round(p, 6);       // 保留6位小数
+        }
+
 
         /// <summary>
         /// 四参数相关变量初始化
@@ -88,7 +124,7 @@ namespace AdjustValue
         /// <param name="scale 缩放因子"></param>
         /// <param name="dx x方向平移量"></param>
         /// <param name="dy y方向平移量"></param>
-        public static void calPara(DataGridView myDGV, ref double rota, ref double scale, ref double dx, ref double dy)
+        public static void calPara(DataGridView myDGV, ref double rota, ref double scale, ref double dx, ref double dy,ref double p)
         {
             // 当表格中点的数量小于2时，弹出警告
             if (myDGV == null || myDGV.Rows.Count <= 1)
@@ -108,7 +144,7 @@ namespace AdjustValue
                 p2[i].Y = Convert.ToDouble(myDGV.Rows[i].Cells[4].Value);
             }
             // 调用Param4函数进行计算
-            Param4(p1, p2, n, ref rota, ref scale, ref dx, ref dy);
+            Param4(p1, p2, n, ref rota, ref scale, ref dx, ref dy,ref p);
 
         }
 

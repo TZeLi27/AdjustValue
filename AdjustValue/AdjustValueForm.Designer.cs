@@ -132,9 +132,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(784, 46);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(84, 20);
+            this.label1.Size = new System.Drawing.Size(273, 20);
             this.label1.TabIndex = 5;
-            this.label1.Text = "已知信息：";
+            this.label1.Text = "已知信息（以下结果均保留6位小数）：";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // label2

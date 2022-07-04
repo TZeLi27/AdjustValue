@@ -23,19 +23,21 @@ namespace AdjustValue
         private void TlsInputData_Click(object sender, EventArgs e)
         {
             ParamFour.InputAdjustData(DGVcoord); // 调用ParamFour文件中的导入数据函数，数据存放在DGV表格中 
+            TlsInputData.Enabled = false;                 // 导入数据后禁止按钮
             TlsCalPara.Enabled = true;                      // 激活计算参数按钮
         }
         
         // 计算参数按钮事件响应
         private void TlsCalPara_Click(object sender, EventArgs e)
         {
-            double rota = 0.0, scale = 0.0, dx = 0.0, dy = 0.0;                             // 定义四参数：rote 旋转；scale 缩放；dx,dy 平移量
-            ParamFour.calPara(DGVcoord,  ref rota, ref scale, ref dx, ref dy);        // 调用ParamFour文件中的计算参数函数
+            double rota = 0.0, scale = 0.0, dx = 0.0, dy = 0.0,p=0.0;                             // 定义四参数：rote 旋转；scale 缩放；dx,dy 平移量
+            ParamFour.calPara(DGVcoord,  ref rota, ref scale, ref dx, ref dy,ref p);        // 调用ParamFour文件中的计算参数函数
             // 结果输出到窗口的文本框中
             RTxtOutpara.Text = "四参数："+"dx=" + dx.ToString() + " ";
             RTxtOutpara.Text += "dy=" + dy.ToString() + " ";
-            RTxtOutpara.Text += "rota=" + rota.ToString() + " ";
-            RTxtOutpara.Text += "sacle=" + scale.ToString() + " ";
+            RTxtOutpara.Text += "rota=" + rota.ToString() + "° ";
+            RTxtOutpara.Text += "sacle=" + scale.ToString() + "\n";
+            RTxtOutpara.Text += "平面点位中误差(mm)：" + p.ToString() + " ";
             TlsOutPara.Enabled = true;                       // 激活参数导出按钮
         }
 
@@ -66,8 +68,10 @@ namespace AdjustValue
             DGVcoord.Columns.Clear();
             // 清空文本框
             RTxtOutpara.Clear();
+
             TlsOutPara.Enabled = false;
             TlsCalPara.Enabled = false;
+            TlsInputData.Enabled = true;            // 清除数据后激活导入数据按钮     
         }
 
 
