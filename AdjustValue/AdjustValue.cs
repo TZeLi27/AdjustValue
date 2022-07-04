@@ -25,6 +25,74 @@ namespace AdjustValue
             double[,] d = new double[rowsNum,1];                      // 误差方程常数
             double[,] V = new double[rowsNum, 1];                     // 改正数矩阵
             double[,] P = new double[rowsNum, rowsNum];         // 权值矩阵
+
+            /**********初始化信息**********/
+            // 定义已知点信息矩阵
+            string[] TurePoint = new string[rowsNum];                  // 已知点点号
+            string[] TempPoint = new string[rowsNum];                // 临时文件
+            double[] TureValue = new double[rowsNum];              // 已知点高程
+            int TureNum = 0;                                                          // 已知点数量
+            // 初始化L、P、已知点矩阵
+            calP_L(rowsNum, ref StartEndPoint, myDGV, ref P, ref L, ref TurePoint, ref TempPoint, ref TureValue, ref TureNum);
+
+            // 获取线路上所有点号
+            string[] AllPoints = StartEndPoint.Distinct().ToArray(); // 获取所有点（从起止点中剔除重复点）
+            int AllPointsNum = AllPoints.Length;                          // 所有点数量
+            int t = AllPointsNum - TureNum;                                 // 必要观测数t
+
+            // 初始化未知点
+            double[,] X = new double[t, 1];                                  // 未知数近似值
+            string[] XPoint = new string[t];                                   // 未知点点号
+            int XNum = 0;                                                              // 未知点数量
+            for (int i = 0; i < AllPoints.Length; i++)
+            { // 将所有点中不在已知点矩阵中的放入未知点矩阵
+                if (!TurePoint.Contains(AllPoints[i]))
+                {
+                    XPoint[XNum] = AllPoints[i];
+                    XNum++;
+                }
+            }
+
+            /**********构建参数近似值矩阵**********/
+            calX(rowsNum, ref TurePoint, ref TureValue, TureNum, StartEndPoint,ref X, XPoint, XNum, L);
+
+            /**********构建B矩阵**********/
+            // 定义B矩阵
+            double[,] B = new double[rowsNum, t];
+            // 构建B矩阵
+            calB(rowsNum, XNum, XPoint, StartEndPoint, ref B);
+
+            /**********构建d矩阵**********/
+            calD(rowsNum, TempPoint, StartEndPoint, TureValue, ref d);
+
+            /**********解法方程**********/
+            double sigma = 0;                                             // 单位权中误差
+            double[,] XValue = new double[t, 1];                 // 法方程解矩阵
+            double[,] X_adjust = new double[t, 1];                          // 法方程解
+            double[,] L_adjust = new double[rowsNum, 1];                          // 法方程解
+            calMatrix(B, rowsNum, t, P, X, d, L, ref l, ref V, ref sigma, ref XValue, ref X_adjust, ref L_adjust);
+
+            // 输出结果
+            printKnow(known, TempPoint, TureValue, X, XPoint, rowsNum, t,TureNum);
+            printModel(model, B, P, l, rowsNum, t);
+            printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma);
+        }
+
+        /// <summary>
+        /// 初始化L、P矩阵和已知点信息
+        /// </summary>
+        /// <param name="rowsNum"></param>
+        /// <param name="StartEndPoint"></param>
+        /// <param name="myDGV"></param>
+        /// <param name="P"></param>
+        /// <param name="L"></param>
+        /// <param name="TurePoint"></param>
+        /// <param name="TempPoint"></param>
+        /// <param name="TureValue"></param>
+        /// <param name="TureNum"></param>
+        public static void calP_L(int rowsNum,ref string[] StartEndPoint, DataGridView myDGV,ref double[,] P,ref double[,] L,
+            ref string[] TurePoint,ref string[] TempPoint, ref double[] TureValue,ref int TureNum)
+        {
             // 初始化P矩阵
             for (int i = 0; i < rowsNum; i++)
             {
@@ -33,22 +101,15 @@ namespace AdjustValue
                     P[i, j] = 0;
                 }
             }
-
-            // 定义已知点信息矩阵
-            string[] TurePoint = new string[rowsNum];                  // 已知点点号
-            string[] TempPoint = new string[rowsNum];                // 临时文件
-            double[] TureValue = new double[rowsNum];              // 已知点高程
-            int TureNum = 0;                                                          // 已知点数量
-
             // 读取L、P和已知点信息 
-            for (int i=0; i<rowsNum; i++)
+            for (int i = 0; i < rowsNum; i++)
             {
                 // 存放路线的起止点，起点在前rowsNum个，终点在后rowsNum个
-                StartEndPoint[i]= Convert.ToString(myDGV.Rows[i].Cells[1].Value);
-                StartEndPoint[i+rowsNum] = Convert.ToString(myDGV.Rows[i].Cells[2].Value);
+                StartEndPoint[i] = Convert.ToString(myDGV.Rows[i].Cells[1].Value);
+                StartEndPoint[i + rowsNum] = Convert.ToString(myDGV.Rows[i].Cells[2].Value);
 
-                L[i,0]=Convert.ToDouble(myDGV.Rows[i].Cells[3].Value);
-                P[i,i]= 1/Convert.ToDouble(myDGV.Rows[i].Cells[4].Value);
+                L[i, 0] = Convert.ToDouble(myDGV.Rows[i].Cells[3].Value);
+                P[i, i] = 1 / Convert.ToDouble(myDGV.Rows[i].Cells[4].Value);
                 // 获取已知点信息
                 if (Convert.ToString(myDGV.Rows[i].Cells[5].Value) != "")
                 {
@@ -60,25 +121,22 @@ namespace AdjustValue
                 }
             }
 
-            // 获取线路上所有点号
-            string[] AllPoints=StartEndPoint.Distinct().ToArray(); // 获取所有点（从起止点中剔除重复点）
-            int AllPointsNum = AllPoints.Length;                          // 所有点数量
-            int t = AllPointsNum - TureNum;                                 // 必要观测数t
-
-            double[,] X = new double[t, 1];                                  // 未知数近似值
-            string[] XPoint = new string[t];                                   // 未知点点号
-            double[,] XValue = new double[t, 1];                          // 法方程解矩阵
-            int XNum = 0;                                                              // 未知点数量
-            // 初始化未知点
-            for (int i = 0; i < AllPoints.Length; i++)
-            { // 将所有点中不在已知点矩阵中的放入未知点矩阵
-                if (!TurePoint.Contains(AllPoints[i]))
-                {
-                    XPoint[XNum] = AllPoints[i];
-                    XNum++;
-                }
-            }
-            // 构建参数近似值矩阵
+        }
+        /// <summary>
+        /// 计算参数近似值矩阵
+        /// </summary>
+        /// <param name="rowsNum"></param>
+        /// <param name="TurePoint"></param>
+        /// <param name="TureValue"></param>
+        /// <param name="TureNum"></param>
+        /// <param name="StartEndPoint"></param>
+        /// <param name="X"></param>
+        /// <param name="XPoint"></param>
+        /// <param name="XNum"></param>
+        /// <param name="L"></param>
+        public static void calX(int rowsNum, ref string[] TurePoint, ref double[] TureValue,int TureNum,string[] StartEndPoint,
+            ref double[,] X, string[] XPoint,int XNum, double[,] L)
+        {
             int k = 0;              // 用于判断是否计算所有未知参数
             for (int i = 0; i < rowsNum; i++)
             {
@@ -107,27 +165,41 @@ namespace AdjustValue
                 }
                 if (k >= XNum) break;  // 当未知点均被计算时，结束循环
             }
-
-            // 定义B矩阵及转置、BY*P
-            double[,] B = new double[rowsNum, t];
-            double[,] BT = new double[t, rowsNum];
-            double[,] BTP = new double[t, rowsNum];
-            // 构建B矩阵
-            for(int i = 0; i < rowsNum; i++)
+        }
+        /// <summary>
+        /// 计算B矩阵
+        /// </summary>
+        /// <param name="rowsNum"></param>
+        /// <param name="XNum"></param>
+        /// <param name="XPoint"></param>
+        /// <param name="StartEndPoint"></param>
+        /// <param name="B"></param>
+        public static void calB(int rowsNum, int XNum, string[] XPoint, string[] StartEndPoint, ref double[,] B)
+        {
+            for (int i = 0; i < rowsNum; i++)
             {
-                for(int j=0; j < XNum; j++)
+                for (int j = 0; j < XNum; j++)
                 {
                     if (StartEndPoint[i] == XPoint[j])
                         B[i, j] = -1;
-                    if (StartEndPoint[i+rowsNum] == XPoint[j])
+                    if (StartEndPoint[i + rowsNum] == XPoint[j])
                         B[i, j] = 1;
                     if (StartEndPoint[i] != XPoint[j] &&
                         StartEndPoint[i + rowsNum] != XPoint[j])
                         B[i, j] = 0;
                 }
             }
-
-            // 构建d矩阵
+        }
+        /// <summary>
+        /// 计算d矩阵
+        /// </summary>
+        /// <param name="rowsNum"></param>
+        /// <param name="TempPoint"></param>
+        /// <param name="StartEndPoint"></param>
+        /// <param name="TureValue"></param>
+        /// <param name="d"></param>
+        public static void calD(int rowsNum, string[] TempPoint, string[] StartEndPoint, double[] TureValue,ref double[,] d)
+        {
             for (int i = 0; i < rowsNum; i++)
             {//（通过查找已知点矩阵）计算误差方程d矩阵
                 int IdStartInTure = Array.IndexOf(TempPoint, StartEndPoint[i]);
@@ -135,34 +207,56 @@ namespace AdjustValue
                 if (IdStartInTure == -1 && IdEndInTure == -1)
                     d[i, 0] = 0;
                 else if (IdStartInTure != -1 && IdEndInTure == -1)
-                    d[i,0]= -TureValue[IdStartInTure];
+                    d[i, 0] = -TureValue[IdStartInTure];
                 else if (IdStartInTure == -1 && IdEndInTure != -1)
                     d[i, 0] = TureValue[IdEndInTure];
             }
+        }
+        /// <summary>
+        /// 矩阵运算
+        /// </summary>
+        /// <param name="B"></param>
+        /// <param name="rowsNum"></param>
+        /// <param name="t"></param>
+        /// <param name="P"></param>
+        /// <param name="X"></param>
+        /// <param name="d"></param>
+        /// <param name="L"></param>
+        /// <param name="l"></param>
+        /// <param name="V"></param>
+        /// <param name="sigma"></param>
+        /// <param name="XValue"></param>
+        /// <param name="X_adjust"></param>
+        /// <param name="L_adjust"></param>
+        public static void calMatrix(double[,] B, int rowsNum,int t, double[,] P, double[,] X, double[,] d, double[,] L, ref double[,] l,
+            ref double[,] V,ref double sigma,ref double[,] XValue,ref double[,] X_adjust, ref double[,] L_adjust)
+        {
+            Matrix B0;                                                           // 定义矩阵运算变量
+            double[,] BT = new double[t, rowsNum];           // BT
+            double[,] BTP = new double[t, rowsNum];         // BT*P
+            double[,] Nbb = new double[t, t];                      // N=BT*P*B
+            double[,] invNbb = new double[t, t];                 // N_-1
 
             // 解法方程
-            Matrix B0;                                                          // 定义矩阵运算变量
             B0 = new Matrix(B);
             B0.MatrixInver(B, ref BT);                                  // B转置
             B0.MatrixMultiply(BT, P, ref BTP);                      // BT*P
-            double[,] Nbb = new double[t, t];                      // N=BT*P*B
             B0.MatrixMultiply(BTP, B, ref Nbb);
-            double[,] invNbb = new double[t, t];                 // N_-1
             invNbb = B0.MatrixOpp(Nbb);
 
             // 计算常数项l矩阵 l=L-B*X-d
             double[,] BX0 = new double[rowsNum, 1];
-            B0.MatrixMultiply(B, X, ref BX0);
-            for(int i = 0; i < rowsNum; i++)
-            {
-                l[i, 0] = L[i, 0] - BX0[i, 0] - d[i,0];
-            }
             double[,] U = new double[t, 1];                         // U=BT*P*l
+
+            B0.MatrixMultiply(B, X, ref BX0);
+            for (int i = 0; i < rowsNum; i++)
+            {
+                l[i, 0] = L[i, 0] - BX0[i, 0] - d[i, 0];
+            } 
             B0.MatrixMultiply(BTP, l, ref U);
             B0.MatrixMultiply(invNbb, U, ref XValue);          // 法方程的解：N-1*U
 
             // 解改正数与精度评价
-            double sigma = 0;                                             // 单位权中误差
             double[,] Bx = new double[rowsNum, 1];
             B0.MatrixMultiply(B, XValue, ref Bx);
             for (int i = 0; i < rowsNum; i++)
@@ -170,21 +264,16 @@ namespace AdjustValue
                 V[i, 0] = Bx[i, 0] - l[i, 0];
                 sigma = sigma + V[i, 0] * P[i, i] * V[i, 0];
             }
-            sigma = sigma / (rowsNum - t);          
-            sigma = Math.Round(Math.Sqrt(sigma),6);
+            sigma = sigma / (rowsNum - t);
+            sigma = Math.Round(Math.Sqrt(sigma), 6);
 
             // 解参数平差值
-            double[,] X_adjust = new double[t, 1];                          // 法方程解
             B0.MatrixAdd(X, XValue, ref X_adjust);
             // 解观测值平差值
-            double[,] L_adjust = new double[rowsNum, 1];                          // 法方程解
             B0.MatrixAdd(V, L, ref L_adjust);
-
-            // 输出结果
-            printKnow(known, TempPoint, TureValue, X, XPoint, rowsNum, t,TureNum);
-            printModel(model, B, P, l, rowsNum, t);
-            printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma);
         }
+
+
 
         /// <summary>
         /// 输出已知信息
