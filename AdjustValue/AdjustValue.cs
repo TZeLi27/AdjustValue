@@ -70,12 +70,13 @@ namespace AdjustValue
             double[,] XValue = new double[t, 1];                 // 法方程解矩阵
             double[,] X_adjust = new double[t, 1];                          // 法方程解
             double[,] L_adjust = new double[rowsNum, 1];                          // 法方程解
-            calMatrix(B, rowsNum, t, P, X, d, L, ref l, ref V, ref sigma, ref XValue, ref X_adjust, ref L_adjust);
+            double[,] sigma_Q = new double[rowsNum, 1];
+            calMatrix(B, rowsNum, t, P, X, d, L, ref l, ref V, ref sigma, ref XValue, ref X_adjust, ref L_adjust,ref sigma_Q);
 
             // 输出结果
             printKnow(known, TempPoint, TureValue, X, XPoint, rowsNum, t,TureNum);
             printModel(model, B, P, l, rowsNum, t);
-            printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma);
+            printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma,sigma_Q);
         }
 
         /// <summary>
@@ -229,7 +230,7 @@ namespace AdjustValue
         /// <param name="X_adjust"></param>
         /// <param name="L_adjust"></param>
         public static void calMatrix(double[,] B, int rowsNum,int t, double[,] P, double[,] X, double[,] d, double[,] L, ref double[,] l,
-            ref double[,] V,ref double sigma,ref double[,] XValue,ref double[,] X_adjust, ref double[,] L_adjust)
+            ref double[,] V,ref double sigma,ref double[,] XValue,ref double[,] X_adjust, ref double[,] L_adjust,ref double[,] sigma_Q)
         {
             Matrix B0;                                                           // 定义矩阵运算变量
             double[,] BT = new double[t, rowsNum];           // BT
@@ -265,6 +266,10 @@ namespace AdjustValue
                 sigma = sigma + V[i, 0] * P[i, i] * V[i, 0];
             }
             sigma = sigma / (rowsNum - t);
+            for(int i = 0; i < rowsNum; i++)
+            {
+                sigma_Q[i, 0] =Math.Sqrt(sigma / P[i, i]);
+            }
             sigma = Math.Round(Math.Sqrt(sigma), 6);
 
             // 解参数平差值
@@ -352,7 +357,7 @@ namespace AdjustValue
         /// <param name="t 必要观测数"></param>
         /// <param name="sigma 单位权中误差"></param>
         public static void printOut(RichTextBox outData, double[,] XValue, double[,] V, 
-            double[,] X_adjust, double[,] L_adjust, int n, int t,double sigma)
+            double[,] X_adjust, double[,] L_adjust, int n, int t,double sigma, double[,] sigma_Q)
         {
             outData.Text = "";
             outData.Text = "法方程解(mm)：\n";
@@ -368,6 +373,12 @@ namespace AdjustValue
             for (int j = 0; j < n; j++)
                 outData.Text += Math.Round(L_adjust[j, 0],6) .ToString() + "\n";
             outData.Text += "\n单位权中误差(mm)=" + Math.Round((sigma*1000),6).ToString()+ "\n";
+            outData.Text += "\n各观测值中误差(mm):\n";
+            for(int i=0; i < n; i++)
+            {
+                outData.Text +=(i+1).ToString() + "\t"+ Math.Round(sigma_Q[i,0]  * 1000, 6).ToString() + "\n";
+            }
+
         }
     }
 }
