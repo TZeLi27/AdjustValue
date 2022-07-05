@@ -36,6 +36,7 @@
             this.TlsClearData = new System.Windows.Forms.ToolStripMenuItem();
             this.RTxtOutpara = new System.Windows.Forms.RichTextBox();
             this.DGVcoord = new System.Windows.Forms.DataGridView();
+            this.TlsCalCoord = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.DGVcoord)).BeginInit();
             this.SuspendLayout();
@@ -46,6 +47,7 @@
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.TlsInputData,
             this.TlsCalPara,
+            this.TlsCalCoord,
             this.TlsOutPara,
             this.TlsOutCoor,
             this.TlsClearData});
@@ -115,6 +117,14 @@
             this.DGVcoord.Size = new System.Drawing.Size(762, 368);
             this.DGVcoord.TabIndex = 2;
             // 
+            // TlsCalCoord
+            // 
+            this.TlsCalCoord.Enabled = false;
+            this.TlsCalCoord.Name = "TlsCalCoord";
+            this.TlsCalCoord.Size = new System.Drawing.Size(83, 24);
+            this.TlsCalCoord.Text = "坐标转换";
+            this.TlsCalCoord.Click += new System.EventHandler(this.TlsCalCoord_Click);
+            // 
             // FourParaForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -148,5 +158,6 @@
         private DataGridView DGVcoord;
         private ToolStripMenuItem TlsOutCoor;
         private ToolStripMenuItem TlsClearData;
+        private ToolStripMenuItem TlsCalCoord;
     }
 }

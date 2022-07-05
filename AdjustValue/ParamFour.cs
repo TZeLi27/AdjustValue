@@ -23,8 +23,8 @@ namespace AdjustValue
         /// <param name="scale 比例因子"></param>
         /// <param name="dx x的平移量"></param>
         /// <param name="dy y的平移量"></param>
-        public static void Param4(Point2D[] OldPoints, Point2D[] Newpoints,int n,
-            ref double rota, ref double scale, ref double dx, ref double dy, ref double p)
+        public static void Param4(DataGridView myDGV, Point2D[] OldPoints, Point2D[] Newpoints,int n,
+            ref double[,] param,ref double rota, ref double scale, ref double dx, ref double dy, ref double p)
         {
             int pointCount = n;
 
@@ -36,7 +36,6 @@ namespace AdjustValue
             double[,] N = new double[4, 4];                               // BT*P*B=N
             double[,] Ninv = new double[4, 4];                          // N的逆矩阵
             double[,] BTL = new double[4, 1];                           // BT*P*L
-            double[,] param = new double[4, 1];                      // 四参数
             
             // 初始化变量
             for (int i = 0; i < pointCount; i++)
@@ -79,8 +78,10 @@ namespace AdjustValue
             rota = Math.Round(rota / Math.PI * 180, 6);
             scale = Math.Round(scale, 6);
 
-            calAcc(OldPoints, Newpoints, n, param, ref p);
+            calAcc(myDGV,OldPoints, Newpoints, n, param, ref p);
         }
+
+
         /// <summary>
         /// 平面点位中误差计算
         /// </summary>
@@ -89,7 +90,7 @@ namespace AdjustValue
         /// <param name="n 计算点的数量"></param>
         /// <param name="param 计算参数"></param>
         /// <param name="p 平面点位中误差"></param>
-        public static void calAcc(Point2D[] OldPoints, Point2D[] Newpoints, int n, double[,] param,ref double p)
+        public static void calAcc(DataGridView myDGV ,Point2D[] OldPoints, Point2D[] Newpoints, int n, double[,] param,ref double p)
         {
             int pointCount = n;
 
@@ -113,8 +114,43 @@ namespace AdjustValue
             // 平面点位中误差
             p =Math.Sqrt (p / (n - 1))*1000;
             p = Math.Round(p, 6);       // 保留6位小数
+            //if (i >= n)
+            //{
+            //    //myDGV[3, i].Value = Convert.ToString(OldPoints[i].X * u - v * OldPoints[i].Y + dx);
+            //    //myDGV[4, i].Value = Convert.ToString(OldPoints[i].X * v + u * OldPoints[i].Y + dy);
+            //    myDGV.Rows[i].Cells[3].Value = OldPoints[i].X * u - v * OldPoints[i].Y + dx;
+            //    myDGV.Rows[i].Cells[4].Value = OldPoints[i].X * v + u * OldPoints[i].Y + dy;
+            //}
         }
 
+        public static void calCoord(DataGridView myDGV, double[,] param)
+        {
+            int n = myDGV.Rows.Count - 1;         // 点的数量
+            int newPointNum = 0;                    // 重合点数量
+            for (int i = 0; i < n; i++)                 // 初始化
+            {
+                if (Convert.ToString(myDGV.Rows[i].Cells[3].Value) != "")
+                {
+                    newPointNum++;
+                }
+            }
+            double tempx, tempy;
+            double u = 1.0, v = 0, dx, dy;
+            dx = param[0, 0];
+            dy = param[1, 0];
+            u = u + param[2, 0];         // param[3,0] = scale * cos(rote) -1
+            v = v + param[3, 0];         // param[4,0] = scale * sin(rote)
+
+            for(int i=newPointNum; i<n; i++)
+            {
+                tempx = Convert.ToDouble(myDGV.Rows[i].Cells[1].Value) * u - v * Convert.ToDouble(myDGV.Rows[i].Cells[2].Value) + dx;
+                tempy= Convert.ToDouble(myDGV.Rows[i].Cells[1].Value) * v + u * Convert.ToDouble(myDGV.Rows[i].Cells[2].Value) + dy;
+                myDGV.Rows[i].Cells[3].Value = 
+                    Math.Round(tempx,4);
+                myDGV.Rows[i].Cells[4].Value =
+                    Math.Round(tempy, 4);
+            }
+        }
 
         /// <summary>
         /// 四参数相关变量初始化
@@ -124,7 +160,7 @@ namespace AdjustValue
         /// <param name="scale 缩放因子"></param>
         /// <param name="dx x方向平移量"></param>
         /// <param name="dy y方向平移量"></param>
-        public static void calPara(DataGridView myDGV, ref double rota, ref double scale, ref double dx, ref double dy,ref double p)
+        public static void calPara(DataGridView myDGV,ref double[,]  param,ref double rota, ref double scale, ref double dx, ref double dy,ref double p)
         {
             // 当表格中点的数量小于2时，弹出警告
             if (myDGV == null || myDGV.Rows.Count <= 1)
@@ -136,15 +172,22 @@ namespace AdjustValue
             int  n= myDGV.Rows.Count-1;         // 点的数量
             Point2D[] p1 = new Point2D[n];      // 旧坐标点
             Point2D[] p2 = new Point2D[n];      // 新坐标点
+            int newPointNum = 0;                    // 重合点数量
             for (int i = 0; i < n; i++)                 // 初始化
             {
+               
                 p1[i].X = Convert.ToDouble(myDGV.Rows[i].Cells[1].Value);
                 p1[i].Y = Convert.ToDouble(myDGV.Rows[i].Cells[2].Value);
-                p2[i].X = Convert.ToDouble(myDGV.Rows[i].Cells[3].Value);
-                p2[i].Y = Convert.ToDouble(myDGV.Rows[i].Cells[4].Value);
+                if (Convert.ToString(myDGV.Rows[i].Cells[3].Value) != "")
+                {
+                    p2[i].X = Convert.ToDouble(myDGV.Rows[i].Cells[3].Value);
+                    p2[i].Y = Convert.ToDouble(myDGV.Rows[i].Cells[4].Value);
+                    newPointNum++;
+                }
             }
+            
             // 调用Param4函数进行计算
-            Param4(p1, p2, n, ref rota, ref scale, ref dx, ref dy,ref p);
+            Param4(myDGV,p1, p2, newPointNum, ref param,ref rota, ref scale, ref dx, ref dy,ref p);
 
         }
 
@@ -165,7 +208,7 @@ namespace AdjustValue
             string sr = reader.ReadLine();
             if (sr != null)
             {
-                string[] strings = sr.Split(',', ' ');
+                string[] strings = sr.Split(',');
                 for (int i = 0; i < strings.Length; i++)
                 {// 读入表头
                     DataGridViewColumn Column = new DataGridViewColumn();
@@ -176,7 +219,7 @@ namespace AdjustValue
                 // 逐行读取，存入表格DGV中
                 while (!reader.EndOfStream)
                 {
-                    string[] strings1 = reader.ReadLine().Split(',', ' ');
+                    string[] strings1 = reader.ReadLine().Split(',');
                     int id = myDGV.Rows.Add();
                     for (int j = 0; j < strings1.Length ; j++)
                     {
@@ -218,16 +261,16 @@ namespace AdjustValue
                 return;
             }
 
-            // 逐行读取，每行中的数据通过tab隔开
+            // 逐行读取，每行中的数据通过,隔开
             FileStream fileStream = new FileStream(outFilePath, FileMode.OpenOrCreate);
-            StreamWriter streamWriter = new StreamWriter(fileStream, System.Text.Encoding.Unicode);
+            StreamWriter streamWriter = new StreamWriter(fileStream);
             StringBuilder strBuilder = new StringBuilder();
             try
             {
                 //添加列名 
                 for (int j = 0; j < myDGV.Columns.Count; j++)
                 {
-                    strBuilder.Append(myDGV.Columns[j].Name.ToString() + "\t");
+                    strBuilder.Append(myDGV.Columns[j].HeaderText.ToString() + ",");
                 }
                 streamWriter.WriteLine(strBuilder.ToString());
                 //添加每行数据
@@ -236,7 +279,7 @@ namespace AdjustValue
                     strBuilder = new StringBuilder();
                     for (int j = 0; j < myDGV.Columns.Count; j++)
                     {
-                        strBuilder.Append(myDGV.Rows[i].Cells[j].Value.ToString() + "\t");
+                        strBuilder.Append(myDGV.Rows[i].Cells[j].Value.ToString() + ",");
                     }
                     streamWriter.WriteLine(strBuilder.ToString());
                 }

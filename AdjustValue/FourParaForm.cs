@@ -13,6 +13,9 @@ namespace AdjustValue
     // 本文件定义了四参数转换窗口及控件响应事件
     public partial class FourParaForm : Form
     {
+        double[,] param = new double[4, 1];
+        double rota = 0.0, scale = 0.0, dx = 0.0, dy = 0.0, p = 0.0;                             // 定义四参数：rote 旋转；scale 缩放；dx,dy 平移量
+
 
         public FourParaForm()
         {
@@ -30,8 +33,7 @@ namespace AdjustValue
         // 计算参数按钮事件响应
         private void TlsCalPara_Click(object sender, EventArgs e)
         {
-            double rota = 0.0, scale = 0.0, dx = 0.0, dy = 0.0,p=0.0;                             // 定义四参数：rote 旋转；scale 缩放；dx,dy 平移量
-            ParamFour.calPara(DGVcoord,  ref rota, ref scale, ref dx, ref dy,ref p);        // 调用ParamFour文件中的计算参数函数
+            ParamFour.calPara(DGVcoord,ref param,  ref rota, ref scale, ref dx, ref dy,ref p);        // 调用ParamFour文件中的计算参数函数
             // 结果输出到窗口的文本框中
             RTxtOutpara.Text = "四参数："+"dx=" + dx.ToString() + " ";
             RTxtOutpara.Text += "dy=" + dy.ToString() + " ";
@@ -39,6 +41,12 @@ namespace AdjustValue
             RTxtOutpara.Text += "sacle=" + scale.ToString() + "\n";
             RTxtOutpara.Text += "平面点位中误差(mm)：" + p.ToString() + " ";
             TlsOutPara.Enabled = true;                       // 激活参数导出按钮
+            TlsCalCoord.Enabled = true;                       // 激活参数导出按钮
+        }
+
+        private void TlsCalCoord_Click(object sender, EventArgs e)
+        {
+            ParamFour.calCoord(DGVcoord, param);
         }
 
         // 参数导出按钮事件响应
