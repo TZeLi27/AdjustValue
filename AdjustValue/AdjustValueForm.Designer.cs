@@ -54,7 +54,7 @@
             this.TlsClearData});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1196, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(1312, 28);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -105,7 +105,7 @@
             this.RTxtKnow.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.RTxtKnow.Location = new System.Drawing.Point(784, 69);
             this.RTxtKnow.Name = "RTxtKnow";
-            this.RTxtKnow.Size = new System.Drawing.Size(400, 170);
+            this.RTxtKnow.Size = new System.Drawing.Size(516, 170);
             this.RTxtKnow.TabIndex = 2;
             this.RTxtKnow.Text = "";
             // 
@@ -114,7 +114,7 @@
             this.RTxtModel.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.RTxtModel.Location = new System.Drawing.Point(784, 275);
             this.RTxtModel.Name = "RTxtModel";
-            this.RTxtModel.Size = new System.Drawing.Size(400, 170);
+            this.RTxtModel.Size = new System.Drawing.Size(516, 170);
             this.RTxtModel.TabIndex = 3;
             this.RTxtModel.Text = "";
             // 
@@ -123,7 +123,7 @@
             this.RTxtOut.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.RTxtOut.Location = new System.Drawing.Point(783, 480);
             this.RTxtOut.Name = "RTxtOut";
-            this.RTxtOut.Size = new System.Drawing.Size(400, 170);
+            this.RTxtOut.Size = new System.Drawing.Size(516, 170);
             this.RTxtOut.TabIndex = 4;
             this.RTxtOut.Text = "";
             // 
@@ -160,7 +160,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(1196, 662);
+            this.ClientSize = new System.Drawing.Size(1312, 662);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);

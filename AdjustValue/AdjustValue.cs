@@ -76,7 +76,7 @@ namespace AdjustValue
             // 输出结果
             printKnow(known, TempPoint, TureValue, X, XPoint, rowsNum, t,TureNum);
             printModel(model, B, P, l, rowsNum, t);
-            printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma,sigma_Q);
+            printOut(outdata, XValue, V, X_adjust, L_adjust, rowsNum, t, sigma,sigma_Q,XPoint);
         }
 
         /// <summary>
@@ -357,28 +357,21 @@ namespace AdjustValue
         /// <param name="t 必要观测数"></param>
         /// <param name="sigma 单位权中误差"></param>
         public static void printOut(RichTextBox outData, double[,] XValue, double[,] V, 
-            double[,] X_adjust, double[,] L_adjust, int n, int t,double sigma, double[,] sigma_Q)
+            double[,] X_adjust, double[,] L_adjust, int n, int t,double sigma, double[,] sigma_Q,string[] XPoint)
         {
             outData.Text = "";
-            outData.Text = "法方程解(mm)：\n";
-            for( int i = 0; i < t; i++)
-                outData.Text += Math.Round((XValue[i, 0]*1000),6).ToString() + "\n";
-            outData.Text += "\n改正数(mm)：\n";
-            for(int i = 0; i < n; i++)
-                outData.Text += Math.Round((V[i, 0] * 1000),6).ToString() + "\n";
-            outData.Text += "\n参数平差值(m)：\n";
-            for(int j = 0; j < t; j++)
-                outData.Text += Math.Round(X_adjust[j, 0],6).ToString() + "\n";
-            outData.Text += "\n观测值平差值(m)：\n";
-            for (int j = 0; j < n; j++)
-                outData.Text += Math.Round(L_adjust[j, 0],6) .ToString() + "\n";
-            outData.Text += "\n单位权中误差(mm)=" + Math.Round((sigma*1000),6).ToString()+ "\n";
-            outData.Text += "\n各观测值中误差(mm):\n";
-            for(int i=0; i < n; i++)
-            {
-                outData.Text +=(i+1).ToString() + "\t"+ Math.Round(sigma_Q[i,0]  * 1000, 6).ToString() + "\n";
-            }
+            outData.Text += "\n单位权中误差(mm)=" + Math.Round((sigma * 1000), 6).ToString() + "\n";
 
+            outData.Text = "点号\t法方程解(mm)\t参数平差值(m)\n";
+            for( int i = 0; i < t; i++)
+                outData.Text += XPoint[i] + "\t"+Math.Round((XValue[i, 0]*1000),6).ToString() + "\t"
+                    + Math.Round(X_adjust[i, 0], 6).ToString() + "\n";
+
+            outData.Text += "\n观测值编号\t改正数(mm)\t观测值平差值(m)\t中误差(mm)\n";
+            for (int i = 0; i < n; i++)
+                outData.Text += (i + 1).ToString() + "\t" + Math.Round((V[i, 0] * 1000), 6).ToString() + "\t"
+                    + Math.Round(L_adjust[i, 0], 6).ToString() + "\t" + Math.Round(sigma_Q[i, 0] * 1000, 6).ToString() + "\n";
+         
         }
     }
 }

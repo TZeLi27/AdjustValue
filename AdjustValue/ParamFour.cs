@@ -208,7 +208,7 @@ namespace AdjustValue
             string sr = reader.ReadLine();
             if (sr != null)
             {
-                string[] strings = sr.Split(',', ' ');
+                string[] strings = sr.Split(',', ' ','\t');
                 for (int i = 0; i < strings.Length; i++)
                 {// 读入表头
                     DataGridViewColumn Column = new DataGridViewColumn();
@@ -219,7 +219,7 @@ namespace AdjustValue
                 // 逐行读取，存入表格DGV中
                 while (!reader.EndOfStream)
                 {
-                    string[] strings1 = reader.ReadLine().Split(',', ' ');
+                    string[] strings1 = reader.ReadLine().Split(',', ' ','\t');
                     int id = myDGV.Rows.Add();
                     for (int j = 0; j < strings1.Length ; j++)
                     {
